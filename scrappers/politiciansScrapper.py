@@ -67,25 +67,23 @@ def getCMLeaders(soup):
         c = c[1]
       else:
         c = c[0]
-      print(c)
 
 if __name__ == "__main__":
-  # getNames("https://en.wikipedia.org/wiki/Category:Indian_politicians_by_city_or_town", getWikiCities)
-  # getNames("http://www.bjp.org/bjp-in-parliament/rajya-sabha-members", getRajyaSabha)
-  # getNames("http://www.bjp.org/bjp-in-parliament/lok-sabha-members", getLockSabha)
-  # getNames("http://www.bjp.org/leadership/chief-ministers", getCM)
-  # getNames("https://www.inc.in/en/lok-sabha-members?page=1", getCongressSabha)
-  # getNames("https://www.inc.in/en/lok-sabha-members?page=2", getCongressSabha)
-  # getNames("https://www.inc.in/en/lok-sabha-members?page=3", getCongressSabha)
-  # getNames("https://www.inc.in/en/rajya-sabha-members?page=1", getCongressSabha)
-  # getNames("https://www.inc.in/en/rajya-sabha-members?page=2", getCongressSabha)
-  # getNames("https://www.inc.in/en/rajya-sabha-members?page=3", getCongressSabha)
-  # getNames("https://www.inc.in/en/pcc-presidents?page=1", getCongressPresident)
-  # getNames("https://www.inc.in/en/pcc-presidents?page=2", getCongressPresident)
-  # getNames("https://www.inc.in/en/pcc-presidents?page=3", getCongressPresident)
-  # getNames("https://www.inc.in/en/pcc-presidents?page=4", getCongressPresident)
-  # getNames("https://www.inc.in/en/clp-leaders?page=1", getCongressPresident)
-  # getNames("https://www.cpim.org/leadership", getCMLeaders)
-  print(len(finalList))
-  # with open('../scrapper_data/politicains.txt', 'wb') as fb:
-  #   pickle.dump(finalList, fb)
+  getNames("https://en.wikipedia.org/wiki/Category:Indian_politicians_by_city_or_town", getWikiCities)
+  getNames("http://www.bjp.org/bjp-in-parliament/rajya-sabha-members", getRajyaSabha)
+  getNames("http://www.bjp.org/bjp-in-parliament/lok-sabha-members", getLockSabha)
+  getNames("http://www.bjp.org/leadership/chief-ministers", getCM)
+  getNames("https://www.inc.in/en/lok-sabha-members?page=1", getCongressSabha)
+  getNames("https://www.inc.in/en/lok-sabha-members?page=2", getCongressSabha)
+  getNames("https://www.inc.in/en/lok-sabha-members?page=3", getCongressSabha)
+  getNames("https://www.inc.in/en/rajya-sabha-members?page=1", getCongressSabha)
+  getNames("https://www.inc.in/en/rajya-sabha-members?page=2", getCongressSabha)
+  getNames("https://www.inc.in/en/rajya-sabha-members?page=3", getCongressSabha)
+  getNames("https://www.inc.in/en/pcc-presidents?page=1", getCongressPresident)
+  getNames("https://www.inc.in/en/pcc-presidents?page=2", getCongressPresident)
+  getNames("https://www.inc.in/en/pcc-presidents?page=3", getCongressPresident)
+  getNames("https://www.inc.in/en/pcc-presidents?page=4", getCongressPresident)
+  getNames("https://www.inc.in/en/clp-leaders?page=1", getCongressPresident)
+  getNames("https://www.cpim.org/leadership", getCMLeaders)
+  with open('scrapper_data/politicains', 'wb') as fb:
+    pickle.dump(list(finalList), fb)

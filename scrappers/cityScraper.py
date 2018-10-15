@@ -23,5 +23,5 @@ for l in list:
 
   finalList.append(tempList)
 
-with open('../scrapper_data/cities.txt', 'wb') as fb:
+with open('scrapper_data/cities', 'wb') as fb:
   pickle.dump(list, fb)

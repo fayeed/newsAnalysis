@@ -1,45 +1,110 @@
 import spacy
 from flashtext import KeywordProcessor
 import pickle
+from spacy.lang.en.stop_words import STOP_WORDS
 
-CITIES = './scrapper_data/cities.txt'
-POLITICAINS = './scrapper_data/politicains.txt'
-STATES = './scrapper_data/states.txt'
+article = u"""The Bharatiya Janata Party (BJP) on Wednesday demanded from Delhi Chief Minister Arvind Kejriwal to remove Cabinet Minister Kailash Gahlot from his post. Earlier in the day, Income Tax sleuths carried out searches at 16 residential and business premises linked to Gahlot and his family members in the national capital and Gurugram.
+"Kejriwal should immediately remove Gahlot as Transport Minister in view of the Income Tax raids at his 16 premises in connection with business operated and owned by his family," leader of Opposition in Delhi Assembly and BJP leader Vijender Gupta said in a statement here.
+"Today, another gem of Kejriwal's 67 gems got exposed," he said adding that the Income Tax Department was not allowed to work in an independent and fair manner. 
+Meanwhile, Kejriwal asked Prime Minister Narendra Modi to apologise for 'constantly troubling' the Aam Aadmi Party (AAP) government after the Income Tax Department carried out raids.
+Kejriwal accused the Modi government of trying to 'intimidate' the AAP dispensation by getting its leaders and ministers raided by central agencies.
+The party also termed the raid as 'political vendetta'.
+"Friendship with Nirav Modi and Mallya and raid on us? Modiji you conducted raids on me Satyendar and Manish what happened to those (raids). Nothing was found. So before you go with another raid at least apologise to Delhi people for troubling their elected government," Kejriwal tweeted."""
 
-article = u"""Noida: Uttar Pradesh governor Ram Naik on Thursday said the name of the father of the Constitution BR Ambedkar should be corrected in the entire country and it was not right to politicise the issue.
+class NewsDataExtractor:
+  def __init__(self, article):
+    self.CITIES = 'scrapper_data/cities'
+    self.POLITICAINS = 'scrapper_data/politicains'
+    self.STATES = 'scrapper_data/states'
+    nlp = spacy.load('en')
+    self.doc = nlp(article)
+    self.cities = self.tag(self.CITIES, article)
+    self.politicains = self.tag(self.POLITICAINS, article)
+    self.states = self.tag(self.STATES, article)
+    self.nouns = self.getNoun()
+    self.nounChunks = self.getNounChunk()
+    self.adjective = self.getAdjective()
+    self.organization = self.getOrganization()
+    self.persons = self.getPersons()
+    self.commonWords = self.getCommonWords()
 
-File image of Uttar Pradesh governor Ram Naik. News18File image of Uttar Pradesh governor Ram Naik. News18
-His remarks came a day after the state government issued an order on using 'Ramji' as Ambedkar's middle name in all references to him in official correspondence and records. Following the decision, the Opposition parties had alleged that the government was doing vote bank politics ahead of the 2019 Lok Sabha elections.
+  def tag(self, file, news):
+    with open(file, 'rb') as fb:
+      keywords = pickle.load(fb)
+      keyword_processor = KeywordProcessor()
+      keyword_processor.add_keywords_from_list(keywords)
 
-'Ramji' was the name of Ambedkar's father and as per practice in Maharashtra, father's name is used as the middle name by his son, Naik said.
+    keywords_found = keyword_processor.extract_keywords(news)
+    sets = set()
+    for k in keywords_found:
+      sets.add(k)
 
-The spelling of Ambedkar in English will remain unchanged, but in Hindi it will be spelt as 'Aambedkar'.
+    return sets
 
-Ambedkar's statues should be put with his correct name in all official departments in the state, Naik said, while speaking at an event in Indira Gandhi Kala Kendra in Noida.
+  def getNoun(self):
+    finalList = set()
+    for np in self.doc.noun_chunks:
+      finalList.add(np.root.text)
+    return list(finalList)
+
+  def getNounChunk(self):
+    finalList = set()
+    for np in self.doc.noun_chunks:
+      finalList.add(np.text)
+    return list(finalList)
+
+  def getAdjective(self):
+    finalList = set()
+    for token in self.doc:
+      if token.pos_ == "ADJ":
+        finalList.add(token)
+    return list(finalList)
+
+  def removeDuplicates(self, list):
+    for city in self.cities:
+      if city in list:
+        list.remove(city)
+    for state in self.states:
+      if state in list:
+        list.remove(state)
+    return list
+
+  def getOrganization(self):
+    finalList = set()
+    for entity in self.doc.ents:
+      if entity.label_ == "ORG":
+        finalList.add(entity.text)
+    finalList = self.removeDuplicates(finalList)
+    return list(finalList)
+
+  def getPersons(self):
+    finalList = set()
+    for entity in self.doc.ents:
+      if entity.label_ == "PERSON":
+        finalList.add(entity.text)
+    finalList = self.removeDuplicates(finalList)
+    return list(finalList)
+
+  def getCommonWords(self):
+    pos_counts = {}
+    for np in self.doc.noun_chunks:
+      if pos_counts.get(np.root.text.lower()) == None:
+        pos_counts[np.root.text.lower()] = 1
+      else:
+        pos_counts[np.root.text.lower()] += 1
+    print(pos_counts)
 
 
-The governor said the name should be corrected in the entire country and a letter had already been written to President Ram Nath Kovind and Home Minister Rajnath Singh in this regard.
 
 
-Naik, in December 2017, had started a campaign to write Ambedkar's name in the correct way."""
 
-def tag(file, news):
-  with open(file, 'rb') as fb:
-    keywords = pickle.load(fb)
-    keyword_processor = KeywordProcessor()
-    keyword_processor.add_keywords_from_list(keywords)
 
-  keywords_found = keyword_processor.extract_keywords(news)
-  sets = set()
-  for k in keywords_found:
-    sets.add(k)
 
-  return sets
 
-nlp = spacy.load('en')
-doc = nlp(article)
 
-for entity in doc:
-  print(entity)
 
-print(tag(CITIES, article), tag(POLITICAINS, article))
+news = NewsDataExtractor(article)
+
+# print(news.getPersons(), news.getOrganization())
+# print(news.cities, news.politicains, news.states)
+print(news.getCommonWords())
